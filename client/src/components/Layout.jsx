@@ -1,19 +1,25 @@
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 export default function Layout() {
+  gsap.registerPlugin(ScrollTrigger);
   const location = useLocation();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(() => window.location.pathname === "/");
   const [cookieChoice, setCookieChoice] = useState(
     () => localStorage.getItem("atm-cookie-consent") || ""
   );
   const [showCookieModal, setShowCookieModal] = useState(false);
   const cursorFrame = useRef(null);
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
     if (isLoading) return;
     let observer = null;
+    let footerTriggered = false;
+    let onFooterScroll = null;
+    let fallbackTimer = null;
 
     const splitLetters = (target, skipSelector, byWord = false) => {
       if (!target || target.dataset.split === "true") return;
@@ -68,6 +74,40 @@ export default function Layout() {
     };
 
     const ctx = gsap.context(() => {
+      const animateReveal = (target) => {
+        if (!target || target.dataset.revealed === "true") return;
+        target.dataset.revealed = "true";
+        if (target.classList.contains("hero-title") || target.classList.contains("split-text")) {
+          const isSplitText = target.classList.contains("split-text");
+          splitLetters(
+            target,
+            target.classList.contains("hero-title") ? ".glitch-word" : null,
+            isSplitText
+          );
+          gsap.set(target, { opacity: 1, y: 0 });
+          const letters = target.querySelectorAll(".hero-letter");
+          const glitch = target.querySelectorAll(".glitch-word");
+          const units = [...letters, ...glitch];
+          gsap.fromTo(
+            units,
+            { opacity: 0, y: 8 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: isSplitText ? 0.25 : 0.35,
+              ease: "power1.out",
+              stagger: isSplitText ? 0.008 : 0.015,
+            }
+          );
+          return;
+        }
+        gsap.fromTo(
+          target,
+          { opacity: 0, y: 14 },
+          { opacity: 1, y: 0, duration: 0.95, ease: "power2.out" }
+        );
+      };
+
       const elements = gsap.utils.toArray(".reveal");
       observer = new IntersectionObserver(
         (entries, obs) => {
@@ -78,35 +118,7 @@ export default function Layout() {
               obs.unobserve(entry.target);
               return;
             }
-            if (target.classList.contains("hero-title") || target.classList.contains("split-text")) {
-              const isSplitText = target.classList.contains("split-text");
-              splitLetters(
-                target,
-                target.classList.contains("hero-title") ? ".glitch-word" : null,
-                isSplitText
-              );
-              gsap.set(target, { opacity: 1, y: 0 });
-              const letters = target.querySelectorAll(".hero-letter");
-              const glitch = target.querySelectorAll(".glitch-word");
-              const units = [...letters, ...glitch];
-              gsap.fromTo(
-                units,
-                { opacity: 0, y: 8 },
-                {
-                  opacity: 1,
-                  y: 0,
-                  duration: isSplitText ? 0.25 : 0.35,
-                  ease: "power1.out",
-                  stagger: isSplitText ? 0.008 : 0.015,
-                }
-              );
-            } else {
-              gsap.fromTo(
-                target,
-                { opacity: 0, y: 14 },
-                { opacity: 1, y: 0, duration: 0.95, ease: "power2.out" }
-              );
-            }
+            animateReveal(target);
             obs.unobserve(entry.target);
           });
         },
@@ -114,11 +126,20 @@ export default function Layout() {
       );
 
       elements.forEach((el) => observer.observe(el));
+      fallbackTimer = setTimeout(() => {
+        elements.forEach((el) => {
+          if (location.pathname === "/" && el.classList.contains("home-sequence")) return;
+          const rect = el.getBoundingClientRect();
+          if (rect.top < window.innerHeight && rect.bottom > 0) {
+            animateReveal(el);
+          }
+        });
+      }, 120);
 
       const logoSection = document.querySelector(".logo-history");
       if (logoSection) {
         const title = logoSection.querySelector("h2");
-        const logoImg = logoSection.querySelector(".logo-story img");
+        const logoImg = logoSection.querySelector(".logo-panel img");
 
         if (title) {
           gsap.fromTo(
@@ -138,6 +159,48 @@ export default function Layout() {
       }
 
       if (location.pathname === "/") {
+        const scroller = document.querySelector(".logo-scroll");
+        const track = document.querySelector(".logo-scroll-track");
+        const panels = gsap.utils.toArray(".logo-panel");
+        if (scroller && track && panels.length > 1) {
+          gsap.to(track, {
+            xPercent: -100 * (panels.length - 1),
+            ease: "none",
+            scrollTrigger: {
+              trigger: scroller,
+              start: "top 25%",
+              end: () => `+=${track.scrollWidth - scroller.clientWidth}`,
+              scrub: 1,
+              pin: true,
+              anticipatePin: 1,
+            },
+          });
+        }
+      }
+
+      const footerElements = gsap.utils.toArray(".footer-reveal");
+      if (location.pathname !== "/") {
+        gsap.set(footerElements, { opacity: 1, y: 0 });
+      }
+      onFooterScroll = () => {
+        if (location.pathname !== "/") return;
+        if (footerTriggered || !footerElements.length) return;
+        const triggerPoint = document.body.scrollHeight - window.innerHeight * 1.2;
+        if (window.scrollY >= triggerPoint) {
+          footerTriggered = true;
+          gsap.fromTo(
+            footerElements,
+            { opacity: 0, y: 14 },
+            { opacity: 1, y: 0, duration: 0.6, ease: "power2.out", stagger: 0.03 }
+          );
+        }
+      };
+
+      onFooterScroll();
+      window.addEventListener("scroll", onFooterScroll, { passive: true });
+      window.addEventListener("resize", onFooterScroll);
+
+      if (location.pathname === "/") {
         const nav = document.querySelector(".nav-bar");
         const heroVideo = document.querySelector(".home-video-bg");
         const heroTitle = document.querySelector(".hero-title");
@@ -145,98 +208,117 @@ export default function Layout() {
         const heroSubtitle = document.querySelector(".hero-subtitle");
         const heroActions = document.querySelector(".hero-actions");
         const heroScroll = document.querySelector(".hero-scroll");
+        const shouldRunHomeIntro = isFirstRender.current;
 
-        if (heroTitle) {
-          splitLetters(heroTitle, ".glitch-word", true);
-        }
-        if (heroSubtitle) {
-          splitLetters(heroSubtitle, null, true);
-        }
-        if (heroEyebrow) {
-          splitLetters(heroEyebrow, null, false);
-        }
+        if (!shouldRunHomeIntro) {
+          gsap.set([nav, heroEyebrow, heroTitle, heroSubtitle, heroActions, heroScroll], {
+            opacity: 1,
+            y: 0,
+          });
+          if (heroVideo) gsap.set(heroVideo, { opacity: 1 });
+        } else {
+          if (heroTitle) {
+            splitLetters(heroTitle, ".glitch-word", true);
+          }
+          if (heroSubtitle) {
+            splitLetters(heroSubtitle, null, true);
+          }
+          if (heroEyebrow) {
+            splitLetters(heroEyebrow, null, false);
+          }
 
-        const titleUnits = heroTitle
-          ? heroTitle.querySelectorAll(".hero-letter, .glitch-word")
-          : [];
-        const subtitleLetters = heroSubtitle ? heroSubtitle.querySelectorAll(".hero-letter") : [];
-        const eyebrowLetters = heroEyebrow ? heroEyebrow.querySelectorAll(".hero-letter") : [];
+          const titleUnits = heroTitle
+            ? heroTitle.querySelectorAll(".hero-letter, .glitch-word")
+            : [];
+          const subtitleLetters = heroSubtitle ? heroSubtitle.querySelectorAll(".hero-letter") : [];
+          const eyebrowLetters = heroEyebrow ? heroEyebrow.querySelectorAll(".hero-letter") : [];
 
-        gsap.set(
-          [nav, heroEyebrow, heroTitle, heroSubtitle, heroActions, heroScroll],
-          { opacity: 0, y: 10 }
-        );
-        gsap.set([titleUnits, subtitleLetters, eyebrowLetters], { opacity: 0, y: 8 });
-        if (heroVideo) {
-          gsap.set(heroVideo, { opacity: 0 });
-        }
-
-        const tl = gsap.timeline({ delay: 0.05 });
-        if (heroVideo) {
-          tl.to(heroVideo, { opacity: 1, duration: 0.4, ease: "power2.out" });
-          tl.to({}, { duration: 0.4 });
-        }
-        if (nav) {
-          tl.to(nav, { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" });
-        }
-        if (heroTitle) {
-          tl.set(heroTitle, { opacity: 1, y: 0 }, "-=0.15");
-        }
-        if (heroEyebrow) {
-          tl.set(heroEyebrow, { opacity: 1, y: 0 }, "-=0.15");
-        }
-        if (heroSubtitle) {
-          tl.set(heroSubtitle, { opacity: 1, y: 0 }, "-=0.15");
-        }
-        if (eyebrowLetters.length) {
-          tl.to(
-            eyebrowLetters,
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.16,
-              ease: "power2.out",
-              stagger: 0.007,
-            },
-            "+=0"
+          gsap.set(
+            [nav, heroEyebrow, heroTitle, heroSubtitle, heroActions, heroScroll],
+            { opacity: 0, y: 10 }
           );
-        }
-        if (titleUnits.length) {
-          tl.to(
-            titleUnits,
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.25,
-              ease: "power2.out",
-              stagger: 0.01,
-            },
-            "<"
-          );
-        }
-        if (subtitleLetters.length) {
-          tl.to(
-            subtitleLetters,
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.14,
-              ease: "power2.out",
-              stagger: 0.004,
-            },
-            "<"
-          );
-        }
-        if (heroActions) {
-          tl.to(heroActions, { opacity: 1, y: 0, duration: 0.25, ease: "power2.out" }, "+=0.1");
-        }
-        if (heroScroll) {
-          tl.to(heroScroll, { opacity: 1, y: 0, duration: 0.25, ease: "power2.out" }, "<");
+          gsap.set([titleUnits, subtitleLetters, eyebrowLetters], { opacity: 0, y: 8 });
+          if (heroVideo) {
+            gsap.set(heroVideo, { opacity: 0 });
+          }
+
+          const tl = gsap.timeline({ delay: 0.05 });
+          if (heroVideo) {
+            tl.to(heroVideo, { opacity: 1, duration: 0.4, ease: "power2.out" });
+            tl.to({}, { duration: 0.4 });
+          }
+          if (nav) {
+            tl.to(nav, { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" });
+          }
+          if (heroTitle) {
+            tl.set(heroTitle, { opacity: 1, y: 0 }, "-=0.15");
+          }
+          if (heroEyebrow) {
+            tl.set(heroEyebrow, { opacity: 1, y: 0 }, "-=0.15");
+          }
+          if (heroSubtitle) {
+            tl.set(heroSubtitle, { opacity: 1, y: 0 }, "-=0.15");
+          }
+          if (eyebrowLetters.length) {
+            tl.to(
+              eyebrowLetters,
+              {
+                opacity: 1,
+                y: 0,
+                duration: 0.16,
+                ease: "power2.out",
+                stagger: 0.007,
+              },
+              "+=0"
+            );
+          }
+          if (titleUnits.length) {
+            tl.to(
+              titleUnits,
+              {
+                opacity: 1,
+                y: 0,
+                duration: 0.25,
+                ease: "power2.out",
+                stagger: 0.01,
+              },
+              "<"
+            );
+          }
+          if (subtitleLetters.length) {
+            tl.to(
+              subtitleLetters,
+              {
+                opacity: 1,
+                y: 0,
+                duration: 0.14,
+                ease: "power2.out",
+                stagger: 0.004,
+              },
+              "<"
+            );
+          }
+          if (heroActions) {
+            tl.to(
+              heroActions,
+              { opacity: 1, y: 0, duration: 0.25, ease: "power2.out" },
+              "+=0.1"
+            );
+          }
+          if (heroScroll) {
+            tl.to(heroScroll, { opacity: 1, y: 0, duration: 0.25, ease: "power2.out" }, "<");
+          }
         }
       }
     });
+    isFirstRender.current = false;
     return () => {
       if (observer) observer.disconnect();
+      if (onFooterScroll) {
+        window.removeEventListener("scroll", onFooterScroll);
+        window.removeEventListener("resize", onFooterScroll);
+      }
+      if (fallbackTimer) clearTimeout(fallbackTimer);
       ctx.revert();
     };
   }, [location.pathname, isLoading]);
@@ -280,6 +362,10 @@ export default function Layout() {
   }, [cookieChoice]);
 
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [location.pathname]);
+
+  useEffect(() => {
     const cursor = document.querySelector(".custom-cursor");
     if (!cursor) return;
 
@@ -296,7 +382,7 @@ export default function Layout() {
     const onPointerOver = (event) => {
       if (
         event.target.closest(
-          "a, button, [role='button'], input, textarea, select, label, .hero-card, .content-card, .member-card, .label-card, .podcast-item, .contact-card, .manifesto"
+          "a, button, [role='button'], input, textarea, select, label, .hero-card, .content-card, .member-card, .label-card, .podcast-item, .contact-card, .manifesto, .site-footer, .footer-section"
         )
       ) {
         cursor.classList.add("is-hovering");
@@ -310,7 +396,7 @@ export default function Layout() {
     const onPointerOut = (event) => {
       if (
         event.target.closest(
-          "a, button, [role='button'], input, textarea, select, label, .hero-card, .content-card, .member-card, .label-card, .podcast-item, .contact-card, .manifesto"
+          "a, button, [role='button'], input, textarea, select, label, .hero-card, .content-card, .member-card, .label-card, .podcast-item, .contact-card, .manifesto, .site-footer, .footer-section"
         )
       ) {
         cursor.classList.remove("is-hovering");
@@ -395,8 +481,8 @@ export default function Layout() {
       <footer className="site-footer">
         <div className="footer-panel">
           <div className="footer-section">
-            <div className="footer-section-title">Links</div>
-            <div className="footer-section-detail">
+            <div className="footer-section-title footer-reveal">Links</div>
+            <div className="footer-section-detail footer-reveal">
               <ul>
                 <li>
                   <a href="#">Facebook</a>
@@ -415,12 +501,12 @@ export default function Layout() {
                 </li>
               </ul>
             </div>
-            <div className="footer-section-detail2"></div>
+            <div className="footer-section-detail2 footer-reveal"></div>
           </div>
 
           <div className="footer-section">
-            <div className="footer-section-title">Website Section</div>
-            <div className="footer-section-detail">
+            <div className="footer-section-title footer-reveal">Website Section</div>
+            <div className="footer-section-detail footer-reveal">
               <ul>
                 <li>
                   <Link to="/">Home</Link>
@@ -442,12 +528,12 @@ export default function Layout() {
                 </li>
               </ul>
             </div>
-            <div className="footer-section-detail2"></div>
+            <div className="footer-section-detail2 footer-reveal"></div>
           </div>
 
           <div className="footer-section">
-            <div className="footer-section-title">Address</div>
-            <div className="footer-section-detail">
+            <div className="footer-section-title footer-reveal">Location</div>
+            <div className="footer-section-detail footer-reveal">
               <p>
                 126 Boulevard Krim Belkacem - Telemly
                 <br />
@@ -456,12 +542,14 @@ export default function Layout() {
                 Algeria
               </p>
             </div>
-            <div className="footer-section-detail2">ALGERIAN TECHNO MOVEMENT 2026</div>
+            <div className="footer-section-detail2 footer-reveal">
+              ALGERIAN TECHNO MOVEMENT 2026
+            </div>
           </div>
 
           <div className="footer-section">
-            <div className="footer-section-title">Subscribe</div>
-            <div className="footer-section-detail">
+            <div className="footer-section-title footer-reveal">Subscribe</div>
+            <div className="footer-section-detail footer-reveal">
               <form className="footer-form" action="#" method="post">
                 <label htmlFor="footer-email">
                   Subscribe to stay up to date with the latest news and articles
@@ -480,7 +568,7 @@ export default function Layout() {
                 </div>
               </form>
             </div>
-            <div className="footer-section-detail2">
+            <div className="footer-section-detail2 footer-reveal">
               Designed by <a href="#">AMMACHI Salah Eddine</a>
             </div>
           </div>

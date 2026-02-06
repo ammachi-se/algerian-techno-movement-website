@@ -72,11 +72,33 @@ h3 {
 }
 
 main {
-  padding: 140px 4vw 100px;
+  padding: 140px 4vw calc(100px + 50vh);
+  position: relative;
+  z-index: 1;
+  background: transparent;
+  pointer-events: none;
+}
+
+main::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: calc(100% - 50vh);
+  background: #f2f1ed;
+  z-index: 0;
+  pointer-events: none;
+}
+
+main > * {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
 }
 
 main.main-home {
-  padding: 0 0 100px;
+  padding: 0 0 calc(100px + 50vh);
 }
 
 .grain {
@@ -298,6 +320,8 @@ main.main-home {
 
 .nav-grid a {
   position: relative;
+  display: inline-block;
+  width: fit-content;
   color: rgba(245, 245, 245, 0.8);
   padding-bottom: 2px;
   transition: color 0.3s ease;
@@ -364,16 +388,19 @@ main.main-home {
   min-height: 100vh;
   height: 100vh;
   padding-top: var(--header-height);
-  padding-bottom: 12vh;
-  align-content: end;
+  padding-bottom: 0;
+  align-content: center;
+  justify-items: center;
+  text-align: center;
 }
 
 .home-hero .hero-scroll {
   position: absolute;
-  left: 4vw;
+  left: 50%;
   bottom: 20px;
   margin-top: 0;
   padding-top: 0;
+  transform: translateX(-50%);
 }
 
 .home-video-bg {
@@ -453,13 +480,13 @@ main.main-home {
   text-transform: uppercase;
   letter-spacing: 0.2em;
   color: var(--accent-2);
-  font-size: 0.7rem;
+  font-size: 0.85rem;
 }
 
 .hero-title {
   font-family: "Chakra Petch", sans-serif;
   font-weight: 800;
-  font-size: clamp(2rem, 3.2vw, 3.2rem);
+  font-size: clamp(2.4rem, 4.2vw, 3.8rem);
   line-height: 1.05;
   text-transform: uppercase;
   max-width: 100%;
@@ -520,7 +547,7 @@ main.main-home {
 .hero-subtitle {
   max-width: min(700px, 60vw);
   color: var(--muted);
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   font-weight: 600;
   word-break: keep-all;
   overflow-wrap: normal;
@@ -783,93 +810,34 @@ main.main-home {
 }
 
 
-.logo-story {
-  display: grid;
-  place-items: center;
+.logo-scroll {
   width: 100%;
+  overflow: hidden;
 }
 
-.logo-story img {
-  width: min(260px, 50%);
+.logo-scroll-track {
+  --logo-panel-width: 30vw;
+  display: flex;
+  width: 100%;
+  gap: 1vw;
+  padding-left: calc(50vw - (var(--logo-panel-width) / 2));
+  padding-right: calc(50vw - (var(--logo-panel-width) / 2));
+}
+
+.logo-panel {
+  min-width: var(--logo-panel-width);
+  height: 60vh;
+  display: grid;
+  place-items: center;
+}
+
+.logo-panel img {
+  width: min(320px, 60%);
   height: auto;
   object-fit: contain;
   filter: brightness(0) saturate(100%);
 }
 
-.logo-hotspots {
-  position: relative;
-  display: inline-block;
-  width: min(260px, 50%);
-}
-
-.logo-hotspots img {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-.logo-hotspot {
-  position: absolute;
-  display: block;
-  border-radius: 999px;
-  border: none;
-  background: transparent;
-  padding: 0;
-  cursor: pointer;
-}
-
-.logo-hotspot::after {
-  content: attr(data-label);
-  position: absolute;
-  left: 50%;
-  top: -8px;
-  transform: translate(-50%, -100%);
-  background: #0f0f0f;
-  color: #f5f5f5;
-  font-size: 0.6rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  padding: 6px 10px;
-  border-radius: 999px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  white-space: nowrap;
-}
-
-.logo-hotspot:hover::after,
-.logo-hotspot:focus-visible::after {
-  opacity: 1;
-  transform: translate(-50%, -120%);
-}
-
-.logo-hotspot:focus-visible {
-  outline: 2px solid var(--accent-2);
-  outline-offset: 2px;
-}
-
-.hotspot-circle {
-  top: 6%;
-  left: 36%;
-  width: 28%;
-  height: 24%;
-}
-
-.hotspot-bar {
-  top: 36%;
-  left: 12%;
-  width: 76%;
-  height: 14%;
-  border-radius: 999px;
-}
-
-.hotspot-body {
-  top: 42%;
-  left: 26%;
-  width: 48%;
-  height: 52%;
-  border-radius: 24px;
-}
 
 .capsule-list li {
   padding: 12px 18px;
@@ -1117,16 +1085,22 @@ main.main-home {
 }
 
 .site-footer {
-  background: #201b1b;
+  background: #181414;
   color: #f5f5f5;
   padding: 0;
+  margin-top: 0;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
 }
 
 .footer-panel {
   display: flex;
   flex-wrap: wrap;
   width: 100%;
-  min-height: 60vh;
+  min-height: 50vh;
 }
 
 .footer-section {
@@ -1135,34 +1109,45 @@ main.main-home {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 32px 24px;
-  background: #201b1b;
+  padding: 32px 36px;
+  background: #181414;
   transition: background 0.25s ease;
+  border-left: 1px solid rgba(245, 245, 245, 0.04);
+}
+
+.footer-section:first-child {
+  border-left: none;
 }
 
 .footer-section:hover {
-  background: #1b1717;
+  background: #141111;
 }
 
 .footer-section-title {
   font-size: 0.85rem;
+  font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: rgba(245, 245, 245, 0.6);
-  padding-top: 12%;
+  padding-top: 4%;
+  margin-bottom: 22px;
 }
 
 .footer-section-detail ul {
   list-style: none;
   margin: 0;
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
 .footer-section-detail ul li {
-  padding: 0 0 10px 12px;
+  padding: 0 0 6px 12px;
   transform: translateX(0);
   transition: transform 0.25s ease;
   width: fit-content;
+  font-size: 0.78rem;
 }
 
 .footer-section-detail ul li:hover {
@@ -1170,18 +1155,36 @@ main.main-home {
 }
 
 .footer-section-detail a {
+  position: relative;
   color: #f5f5f5;
   text-decoration: none;
 }
 
+.footer-section-detail a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  width: 100%;
+  height: 2px;
+  background: #f5f5f5;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s ease;
+}
+
+.footer-section-detail a:hover::after {
+  transform: scaleX(1);
+}
+
 .footer-section-detail p {
   line-height: 1.4rem;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   color: rgba(245, 245, 245, 0.9);
 }
 
 .footer-section-detail2 {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: rgba(245, 245, 245, 0.6);
@@ -1192,11 +1195,16 @@ main.main-home {
   text-decoration: underline;
 }
 
+.footer-reveal {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
 .footer-form {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  font-size: 0.8rem;
+  font-size: 0.72rem;
 }
 
 .footer-form label {

@@ -204,32 +204,25 @@ export default function Home() {
         </section>
 
         <section className="logo-history">
-          <h2>History of our logo</h2>
+          <h2>Meaning of our logo</h2>
           <p className="logo-history-text">
             A constellation of artists, sounds and nocturnal rituals. We blend techno, rai,
             industrial textures, and urban poetry.
           </p>
-          <div className="logo-story">
-            <div className="logo-hotspots">
-              <img src="/src/assets/logo4.png" alt="ATM logo" />
-              <button
-                className="logo-hotspot hotspot-circle"
-                type="button"
-                aria-label="Logo circle"
-                data-label="Portal"
-              ></button>
-              <button
-                className="logo-hotspot hotspot-bar"
-                type="button"
-                aria-label="Logo bar"
-                data-label="Signal"
-              ></button>
-              <button
-                className="logo-hotspot hotspot-body"
-                type="button"
-                aria-label="Logo body"
-                data-label="Ritual"
-              ></button>
+          <div className="logo-scroll">
+            <div className="logo-scroll-track">
+              <div className="logo-panel">
+                <img src="/src/assets/a-atm.png" alt="ATM logo A" />
+              </div>
+              <div className="logo-panel">
+                <img src="/src/assets/t-atm.png" alt="ATM logo T" />
+              </div>
+              <div className="logo-panel">
+                <img src="/src/assets/m-atm.png" alt="ATM logo M" />
+              </div>
+              <div className="logo-panel">
+                <img src="/src/assets/logo4.png" alt="ATM logo full" />
+              </div>
             </div>
           </div>
         </section>
