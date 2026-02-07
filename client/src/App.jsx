@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
-import About from "./pages/About";
+import Media from "./pages/Media";
 import Members from "./pages/Members";
 import Podcasts from "./pages/Podcasts";
 import Label from "./pages/Label";
@@ -13,7 +13,7 @@ export default function App() {
     <Routes>
       <Route element={<Layout />}>
         <Route index element={<Home />} />
-        <Route path="about" element={<About />} />
+        <Route path="media" element={<Media />} />
         <Route path="members" element={<Members />} />
         <Route path="podcasts" element={<Podcasts />} />
         <Route path="label" element={<Label />} />

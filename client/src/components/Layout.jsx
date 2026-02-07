@@ -3,8 +3,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
+gsap.registerPlugin(ScrollTrigger);
+
 export default function Layout() {
-  gsap.registerPlugin(ScrollTrigger);
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(() => window.location.pathname === "/");
   const [cookieChoice, setCookieChoice] = useState(
@@ -163,16 +164,22 @@ export default function Layout() {
         const track = document.querySelector(".logo-scroll-track");
         const panels = gsap.utils.toArray(".logo-panel");
         if (scroller && track && panels.length > 1) {
+          const lastPanel = panels[panels.length - 1];
+          const computeTargetX = () => {
+            const lastCenter = lastPanel.offsetLeft + lastPanel.offsetWidth / 2;
+            return scroller.clientWidth / 2 - lastCenter;
+          };
           gsap.to(track, {
-            xPercent: -100 * (panels.length - 1),
+            x: computeTargetX,
             ease: "none",
             scrollTrigger: {
               trigger: scroller,
               start: "top 25%",
-              end: () => `+=${track.scrollWidth - scroller.clientWidth}`,
+              end: () => `+=${Math.abs(computeTargetX())}`,
               scrub: 1,
               pin: true,
               anticipatePin: 1,
+              invalidateOnRefresh: true,
             },
           });
         }
@@ -431,8 +438,8 @@ export default function Layout() {
   const menuItems = useMemo(
     () => [
       { label: "Home", to: "/", end: true },
-      { label: "About", to: "/about" },
-      { label: "Members", to: "/members" },
+      { label: "Media", to: "/media" },
+      { label: "Artists", to: "/members" },
       { label: "Podcast", to: "/podcasts" },
       { label: "Label", to: "/label" },
       { label: "Contact", to: "/contact" },
@@ -485,19 +492,29 @@ export default function Layout() {
             <div className="footer-section-detail footer-reveal">
               <ul>
                 <li>
-                  <a href="#">Facebook</a>
+                  <a href="https://facebook.com" target="_blank" rel="noreferrer">
+                    Facebook
+                  </a>
                 </li>
                 <li>
-                  <a href="#">Instagram</a>
+                  <a href="https://www.instagram.com/algerian.techno.movement/" target="_blank" rel="noreferrer">
+                    Instagram
+                  </a>
                 </li>
                 <li>
-                  <a href="#">YouTube</a>
+                  <a href="https://www.youtube.com/c/AlgerianTechnoMovement" target="_blank" rel="noreferrer">
+                    YouTube
+                  </a>
                 </li>
                 <li>
-                  <a href="#">SoundCloud</a>
+                  <a href="https://soundcloud.com/algeriantechnomovement" target="_blank" rel="noreferrer">
+                    SoundCloud
+                  </a>
                 </li>
                 <li>
-                  <a href="#">Bandcamp</a>
+                  <a href="https://lkemia.bandcamp.com/" target="_blank" rel="noreferrer">
+                    Bandcamp
+                  </a>
                 </li>
               </ul>
             </div>
@@ -512,10 +529,10 @@ export default function Layout() {
                   <Link to="/">Home</Link>
                 </li>
                 <li>
-                  <Link to="/about">About Us</Link>
+                  <Link to="/media">Media</Link>
                 </li>
                 <li>
-                  <Link to="/members">Members</Link>
+                  <Link to="/members">Artists</Link>
                 </li>
                 <li>
                   <Link to="/podcasts">Podcast</Link>

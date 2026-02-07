@@ -1,9 +1,9 @@
-export default function About() {
+export default function Media() {
   return (
     <>
       <section className="page-hero">
-        <div className="hero-eyebrow reveal">About</div>
-        <h1 className="hero-title reveal">Notre manifeste sonore</h1>
+        <div className="hero-eyebrow reveal">Media</div>
+        <h1 className="hero-title reveal">Media & transmissions</h1>
         <p className="hero-subtitle reveal">
           Algerian Techno Movement est un collectif né de la nuit algérienne. Nous
           croyons au son comme outil de mémoire et de futurisme.

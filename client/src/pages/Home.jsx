@@ -97,22 +97,42 @@ export default function Home() {
         </p>
         <div className="hero-actions reveal home-sequence">
           <div className="social-links">
-              <a href="#" aria-label="Facebook">
-                <i className="fa-brands fa-facebook-f"></i>
-              </a>
-              <a href="#" aria-label="Instagram">
-                <i className="fa-brands fa-instagram"></i>
-              </a>
-              <a href="#" aria-label="YouTube">
-                <i className="fa-brands fa-youtube"></i>
-              </a>
-              <a href="#" aria-label="SoundCloud">
-                <i className="fa-brands fa-soundcloud"></i>
-              </a>
-              <a href="#" aria-label="Bandcamp">
-                <i className="fa-brands fa-bandcamp"></i>
-              </a>
-            </div>
+            <a href="https://facebook.com" aria-label="Facebook" target="_blank" rel="noreferrer">
+              <i className="fa-brands fa-facebook-f"></i>
+            </a>
+            <a
+              href="https://www.instagram.com/algerian.techno.movement/"
+              aria-label="Instagram"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <i className="fa-brands fa-instagram"></i>
+            </a>
+            <a
+              href="https://www.youtube.com/c/AlgerianTechnoMovement"
+              aria-label="YouTube"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <i className="fa-brands fa-youtube"></i>
+            </a>
+            <a
+              href="https://soundcloud.com/algeriantechnomovement"
+              aria-label="SoundCloud"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <i className="fa-brands fa-soundcloud"></i>
+            </a>
+            <a
+              href="https://lkemia.bandcamp.com/"
+              aria-label="Bandcamp"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <i className="fa-brands fa-bandcamp"></i>
+            </a>
+          </div>
           <Link className="btn ghost" to="/podcasts">
             Listen to the podcasts
           </Link>
@@ -226,7 +246,84 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        <section className="about-home">
+          <h2 className="hero-title reveal">About</h2>
+          <p className="hero-subtitle reveal">
+            The Algerian Techno Movement is a collective of DJs, producers and
+            multidisciplinary artists pushing underground electronic music in Algeria.
+          </p>
+          <p className="hero-subtitle reveal">
+            Founded by pioneers of Algeria's techno and underground scene, we're here to
+            open doors to techno and other electronic genres in Algeria, spotlighting
+            local talent despite the challenges our music scene faces.
+          </p>
+          <p className="hero-subtitle reveal">
+            What drives us is musical diversity and raw artistic expression. We dig into
+            Algeria's identity, its music, folklore, cinema, architecture, and use that as
+            fuel for new electronic sounds. Through constant experimentation, we're
+            building something that's uniquely ours.
+          </p>
+          <p className="hero-subtitle reveal">
+            We're changing how music works here, breaking through cultural barriers and
+            industry limitations. Our goal is simple: showcase Algeria's creative wealth
+            while building a community where electronic music can thrive.
+          </p>
+          <div className="content-grid">
+            <div className="content-card reveal">
+              <h3>Origines</h3>
+              <p>
+                Des sessions clandestines aux plateaux radio, ATM s'est construit sur des
+                rencontres, des machines partagées et des rites communautaires.
+              </p>
+            </div>
+            <div className="content-card reveal">
+              <h3>Mission</h3>
+              <p>
+                Amplifier les voix électroniques algériennes, créer des passerelles entre
+                disciplines et explorer des narrations sonores alternatives.
+              </p>
+            </div>
+            <div className="content-card reveal">
+              <h3>Territoires</h3>
+              <p>
+                Nous organisons des résidences, workshops et performances dans plusieurs
+                villes, avec un focus sur la transmission et l'autonomie.
+              </p>
+            </div>
+          </div>
+          <div className="manifesto reveal">
+            <h2>Manifeste ATM</h2>
+            <p>
+              Nous sommes le souffle électronique des médinas et des highways nocturnes. Nous
+              faisons dialoguer le beat, le spoken word et la mémoire collective. Nous
+              inventons un futur nord-africain dansant.
+            </p>
+          </div>
+        </section>
+
+        <section className="events-home">
+          <h2 className="hero-title reveal">Events</h2>
+          <p className="hero-subtitle reveal">
+            Labyrinth is a collective event of the Algerian techno movement, primarily
+            focused on underground electronic music and visual arts.
+          </p>
+          <p className="hero-subtitle reveal">
+            Its goal is to develop and encourage the local scene, as well as that of North
+            Africa and the Middle East. Labyrinth aspires to create cultural exchanges
+            between these neighboring countries, highlighting the artists of the region and
+            their culture.
+          </p>
+          <p className="hero-subtitle reveal">
+            This event aims to offer immersive experiences around music, as well as other
+            artistic installations that stand out. Drawing on local and regional culture,
+            Labyrinth presents both modern and traditional art, while also drawing
+            inspiration from the region's traditional heritage to modernize it with
+            contemporary artists.
+          </p>
+        </section>
       </div>
     </>
   );
 }
+
